@@ -1,27 +1,26 @@
-1、四大组件（生命周期，使用场景，如何启动）？
+# 1、四大组件（生命周期，使用场景，如何启动）？
 Activity，Service，Broadcast Receiver，Content Provider，外加一个重要组件 intent。
 
-（1）一个Activity的启动顺序：onCreate()——>onStart()——>onResume()
+## 一个Activity的启动顺序：onCreate()——>onStart()——>onResume()
+
+- 1、当另一个Activity启动时:第一个Activity onPause()——>第二个Activity onCreate()——>onStart()——>onResume()——>第一个Activity.onStop()
 
 
-当另一个Activity启动时:第一个Activity onPause()——>第二个Activity    onCreate()——>onStart()——>onResume() 
-——>第一个Activity   onStop()
-
-
-当返回到第一个Activity时：第二个Activity onPause() ——> 第一个Activity　onRestart()——>onStart()——>onResume() ——>第二个Activity   onStop()——>onDestroy()
+- 2、当返回到第一个Activity时：第二个Activity onPause() ——> 第一个Activity　onRestart()——>onStart()——>onResume() ——>第二个Activity    2、onStop()——>onDestroy()
 
 一个Activity的销毁顺序:
 （情况一）onPause()——><Process Killed> 
 （情况二）onPause()——>onStop()——><Process Killed> 
 （情况三）onPause()——>onStop()——>onDestroy()
 
-注释：onPause ：当一个正在前台运行的活动因为其他的活动需要前台运行而转入后台运行的时候，触发该方法。这时候需要将活动的状态持久化，比如正在编辑的数据库记录等。onStop ：当一个活动不再需要展示给用户的时候，触发该方法。如果内存紧张，系统会直接结束这个活动，而不会触发 onStop 方法。 所以保存状态信息是应该在onPause时做，而不是onStop时做。因此在一些情况下，onPause方法或许是活动触发的最后的方法，因此开发者需要在这个时候保存需要保存的信息。
+> onPause ：当一个正在前台运行的活动因为其他的活动需要前台运行而转入后台运行的时候，触发该方法。这时候需要将活动的状态持久化，比如正在编辑的数据库记录等。onStop ：当一个活动不再需要展示给用户的时候，触发该方法。如果内存紧张，系统会直接结束这个活动，而不会触发 onStop 方法。 所以保存状态信息是应该在onPause时做，而不是onStop时做。因此在一些情况下，onPause方法或许是活动触发的最后的方法，因此开发者需要在这个时候保存需要保存的信息。
 
-在android里，有4种activity的启动模式，分别为：
-　　·standard: 标准模式，一调用startActivity()方法就会产生一个新的实例。
-　　·singleTop: 如果已经有一个实例位于Activity栈的顶部时，就不产生新的实例，而只是调用Activity中的newInstance()方法。如果不位于栈顶，会产生一个新的实例。
-　　·singleTask: 会在一个新的task中产生这个实例，以后每次调用都会使用这个，不会去产生新的实例了。
-　　·singleInstance: 这个跟singleTask基本上是一样，只有一个区别：“singleInstance”独占一个task，其它activity不能存在那个task里；
+## 在android里，有4种activity的启动模式
+分别为：
+ - standard: 标准模式，一调用startActivity()方法就会产生一个新的实例。
+ - singleTop: 如果已经有一个实例位于Activity栈的顶部时，就不产生新的实例，而只是调用Activity中的newInstance()方法。如果不位于栈顶，会产生一个新的实例。
+ - singleTask: 会在一个新的task中产生这个实例，以后每次调用都会使用这个，不会去产生新的实例了。
+ - singleInstance: 这个跟singleTask基本上是一样，只有一个区别：“singleInstance”独占一个task，其它activity不能存在那个task里；
 
 参考：https://blog.csdn.net/sinat_14849739/article/details/78072401
 　　这些启动模式可以在功能清单文件AndroidManifest.xml中进行设置，中的launchMode属性。
