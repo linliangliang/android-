@@ -15,23 +15,21 @@ Activity，Service，Broadcast Receiver，Content Provider，外加一个重要�
 
 > onPause ：当一个正在前台运行的活动因为其他的活动需要前台运行而转入后台运行的时候，触发该方法。这时候需要将活动的状态持久化，比如正在编辑的数据库记录等。onStop ：当一个活动不再需要展示给用户的时候，触发该方法。如果内存紧张，系统会直接结束这个活动，而不会触发 onStop 方法。 所以保存状态信息是应该在onPause时做，而不是onStop时做。因此在一些情况下，onPause方法或许是活动触发的最后的方法，因此开发者需要在这个时候保存需要保存的信息。
 
-## 在android里，有4种activity的启动模式
+### 在android里，有4种activity的启动模式
 分别为：
  - standard: 标准模式，一调用startActivity()方法就会产生一个新的实例。
  - singleTop: 如果已经有一个实例位于Activity栈的顶部时，就不产生新的实例，而只是调用Activity中的newInstance()方法。如果不位于栈顶，会产生一个新的实例。
  - singleTask: 会在一个新的task中产生这个实例，以后每次调用都会使用这个，不会去产生新的实例了。
  - singleInstance: 这个跟singleTask基本上是一样，只有一个区别：“singleInstance”独占一个task，其它activity不能存在那个task里；
 
-参考：https://blog.csdn.net/sinat_14849739/article/details/78072401
-　　这些启动模式可以在功能清单文件AndroidManifest.xml中进行设置，中的launchMode属性。
+[这四种模式的区别](https://blog.csdn.net/sinat_14849739/article/details/78072401)
 
-（2）Server是在一段不定的时间运行在后台，不和用户交互应用组件。每个Service必须在manifest中 通过<service>来声明。可以通过contect.startservice和contect.bindserverice来启动。Service和其他的应用组件一样，运行在进程的主线程中。这就是说如果service需要很多耗时或者阻塞的操作，需要在其子线程中实现。
+## Server是在一段不定的时间运行在后台，不和用户交互应用组件。
+每个Service必须在manifest中 通过<service>来声明。可以通过contect.startservice和contect.bindserverice来启动。Service和其他的应用组件一样，运行在进程的主线程中。这就是说如果service需要很多耗时或者阻塞的操作，需要在其子线程中实现。
 
-生命周期：
+### Service的生命周期：
 
-使用context.startService() 启动Service:
-
-                  contex .startService() ->onCreate()- >onStart()->Service running
+使用context.startService() 启动Service: contex .startService() ->onCreate()- >onStart()->Service running
 　　           context.stopService() | ->onDestroy() ->Service stop
 如果Service还没有运行，则android先调用onCreate()然后调用onStart()；如果Service已经运行，则只调用onStart()，所以一个Service的onStart方法可能会重复调用多次。
 　　stopService的时候直接onDestroy，如果是调用者自己直接退出而没有调用stopService的话，Service会一直在后台运行。该Service的调用者再启动起来后可以通过stopService关闭Service。所以调用startService的生命周期为：onCreate --> onStart(可多次调用) --> onDestroy
