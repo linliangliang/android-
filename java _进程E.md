@@ -1,8 +1,8 @@
 # android-
 android学习笔记
 
-#Java创建线程的四种方式
-1、继承Thread类实现多线程
+# Java创建线程的四种方式
+- 1、继承Thread类实现多线程
 2、覆写Runnable()接口实现多线程。
 3、覆写Callable接口实现多线程（JDK1.5）
 
