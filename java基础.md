@@ -1,13 +1,38 @@
 # HashMap和Hashtable的区别
 HashMap和Hashtable都实现了Map接口，但决定用哪一个之前先要弄清楚它们之间的分别。主要的区别有：线程安全性，同步(synchronization)，以及速度。
 
-1 HashMap几乎可以等价于Hashtable，除了HashMap是非synchronized的，并可以接受null(HashMap可以接受为null的键值(key)和值(value)，而Hashtable则不行)。
-2 HashMap是非synchronized，而Hashtable是synchronized，这意味着Hashtable是线程安全的，多个线程可以共享一个Hashtable；而如果没有正确的同步的话，多个线程是不能共享HashMap的。Java 5提供了ConcurrentHashMap，它是HashTable的替代，比HashTable的扩展性更好
-3 HashMap不能保证随着时间的推移Map中的元素次序是不变的。
+1. HashMap几乎可以等价于Hashtable，除了HashMap是非synchronized的，并可以接受null(HashMap可以接受为null的键值(key)和值(value)，而Hashtable则不行)。
+2. HashMap是非synchronized，而Hashtable是synchronized，这意味着Hashtable是线程安全的，多个线程可以共享一个Hashtable；而如果没有正确的同步的话，多个线程是不能共享HashMap的。Java 5提供了ConcurrentHashMap，它是HashTable的替代，比HashTable的扩展性更好
+3. HashMap不能保证随着时间的推移Map中的元素次序是不变的。
 
-- sychronized意味着在一次仅有一个线程能够更改Hashtable。就是说任何线程要更新Hashtable时要首先获得同步锁，其它线程要等到同步锁被释放之后才能再次获得同步锁更新Hashtable。
-我们能否让HashMap同步？
+4. sychronized意味着在一次仅有一个线程能够更改Hashtable。就是说任何线程要更新Hashtable时要首先获得同步锁，其它线程要等到同步锁被释放之后才能再次获得同步锁更新Hashtable。
+
+**我们能否让HashMap同步？**
 HashMap可以通过下面的语句进行同步：
 Map m = Collections.synchronizeMap(hashMap);
 
-如果你使用Java 5或以上的话，请使用ConcurrentHashMap吧。
+- 如果你使用Java 5或以上的话，请使用ConcurrentHashMap吧。
+
+# HashMap和Hashtable的底层实现
+## HashMap和Hashtable的底层实现都是数组+链表结构实现的，这点上完全一致
+1. HashMap基于hashing原理，我们通过put()和get()方法储存和获取对象，当我们将键值对传递给put()方法时，它调用键对象的hashCode()方法来计算hashcode，让后找到bucket位置来储存值对象。当获取对象时，通过键对象的equals()方法找到正确的键值对，然后返回值对象。HashMap使用链表来解决碰撞问题，当发生碰撞了，对象将会储存在链表的下一个节点中。 HashMap在每个链表节点中储存键值对对象。
+```
+/**
+     * HashMap的默认初始容量 必须为2的n次幂
+     */
+    static final int DEFAULT_INITIAL_CAPACITY = 16;
+
+    /**
+     * HashMap的最大容量，可以认为是int的最大值    
+     */
+    static final int MAXIMUM_CAPACITY = 1 << 30;
+
+    /**
+     * 默认的加载因子
+     */
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+    /**
+     * HashMap用来存储数据的数组
+     */
+    transient Entry[] table;
