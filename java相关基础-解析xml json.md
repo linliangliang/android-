@@ -1,4 +1,6 @@
+# XML的解析方式分为四种：1、DOM解析；2、SAX解析；3、JDOM解析；4、DOM4J解析
 ## Dom4j解析xml文件-递归遍历所有节点和属性
+
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 	<user editor="chenleixing" date="2015-02-15">
@@ -18,6 +20,7 @@
 	 * 获取文件的document对象，然后获取对应的根节点
 	 * @author chenleixing
 	 */
+	 
 	@Test
 	public void testGetRoot() throws Exception{
 		SAXReader sax=new SAXReader();//创建一个SAXReader对象
@@ -27,14 +30,15 @@
 		this.getNodes(root);//从根节点开始遍历所有节点
  
 	}
+	
 从指定节点开始，递归遍历所有节点和属性
         /**
 	 * 从指定节点开始,递归遍历所有子节点
 	 * @author chenleixing
 	 */
+	 
 	public void getNodes(Element node){
 		System.out.println("--------------------");
-		
 		//当前节点的名称、文本内容和属性
 		System.out.println("当前节点名称："+node.getName());//当前节点名称
 		System.out.println("当前节点的内容："+node.getTextTrim());//当前节点名称
