@@ -1,5 +1,5 @@
 # Android应用崩溃后异常捕获并重启并写入日志
-现在安装Android系统的手机版本和设备千差万别，在模拟器上运行良好的程序安装到某款手机上说不定就出现崩溃的现象，开发者个人不可能购买所有设备逐个调试，所以在程序发布出去之后，如果出现了崩溃现象，开发者应该及时获取在该设备上导致崩溃的信息
+现在安装Android系统的手机版本和设备千差万别，在模拟器上运行良好的程序安装到某款手机上说不定就出现崩溃的现象，开发者个人不可能购买所有设备逐个调试，所以在程序发布出去之后，如果出现了崩溃现象，开发者应该及时获取在该设备上导出崩溃的信息
   
 Android中提供了一个全局异常的捕获，方式如下： 
 1.定义一个类实现UncaughtExceptionHandler 
@@ -10,63 +10,62 @@ Android中提供了一个全局异常的捕获，方式如下：
 ### （1） 定义一个CrashHandler 
 ```java
 public class CrashHandler implements UncaughtExceptionHandler { 
-private static CrashHandler myCrashHandler; 
-private CrashHandler() { 
-}; 
-private Context context; 
-public final static String LOGPATH =Environment.getExternalStorageDirectory() + “/usershopping/crash.txt” ; 
-private UncaughtExceptionHandler defaultExceptionHandler; 
-public synchronized static CrashHandler getInstance() { 
-if (myCrashHandler == null) { 
-myCrashHandler = new CrashHandler(); 
-} 
-return myCrashHandler; 
-} 
-public void init(Context context) { 
-this.context = context; 
-defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler(); 
-Thread.setDefaultUncaughtExceptionHandler(this); 
-} 
-public void uncaughtException(Thread thread, Throwable ex) { 
-if(!sdCardIsAvailable()){ 
-ex.printStackTrace(); 
-new Thread() { 
-@Override 
-public void run() { 
-Looper.prepare(); 
-Toast.makeText(context, “异常退出”, Toast.LENGTH_LONG).show(); 
-Looper.loop(); 
-} 
-}.start(); 
-new Thread() { 
-@Override 
-public void run() { 
-try { 
-Thread.sleep(4000); 
-} catch (InterruptedException e) { 
-// TODO Auto-generated catch block 
-e.printStackTrace(); 
-} 
-android.os.Process.killProcess(android.os.Process.myPid()); 
-} 
-}.start(); 
-return; 
-} 
-//(3)将错误日志保存到本地txt文件 
-try { 
-// 在throwable的参数里面保存的有程序的异常信息 
-StringBuffer sb = new StringBuffer(); 
-// 1.得到手机的版本信息 硬件信息 
-Field[] fields = Build.class.getDeclaredFields(); 
-for (Field filed : fields) { 
-filed.setAccessible(true); // 暴力反射 
-String name = filed.getName(); 
-String value = filed.get(null).toString(); 
-sb.append(name); 
-sb.append(“=”); 
-sb.append(value); 
-sb.append(“\n”); 
-}
+    private static CrashHandler myCrashHandler; 
+    private CrashHandler() {}; 
+    private Context context; 
+    public final static String LOGPATH =Environment.getExternalStorageDirectory() + “/usershopping/crash.txt” ; 
+    private UncaughtExceptionHandler defaultExceptionHandler; 
+    public synchronized static CrashHandler getInstance() { 
+      if (myCrashHandler == null) { 
+        myCrashHandler = new CrashHandler(); 
+      } 
+    return myCrashHandler; 
+    } 
+  public void init(Context context) { 
+      this.context = context; 
+      defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler(); 
+      Thread.setDefaultUncaughtExceptionHandler(this); 
+  } 
+  public void uncaughtException(Thread thread, Throwable ex) { 
+  if(!sdCardIsAvailable()){ 
+      ex.printStackTrace(); 
+      new Thread() { 
+      @Override 
+      public void run() { 
+        Looper.prepare(); 
+        Toast.makeText(context, “异常退出”, Toast.LENGTH_LONG).show(); 
+        Looper.loop(); 
+      } 
+      }.start(); 
+      new Thread() { 
+          @Override 
+          public void run() { 
+            try { 
+              Thread.sleep(4000); 
+            } catch (InterruptedException e) { 
+              // TODO Auto-generated catch block 
+              e.printStackTrace(); 
+          } 
+              android.os.Process.killProcess(android.os.Process.myPid()); 
+          } 
+      }.start(); 
+    return; 
+    }
+        //(3)将错误日志保存到本地txt文件 
+        try { 
+            // 在throwable的参数里面保存的有程序的异常信息 
+            StringBuffer sb = new StringBuffer(); 
+            // 1.得到手机的版本信息 硬件信息 
+            Field[] fields = Build.class.getDeclaredFields(); 
+            for (Field filed : fields) { 
+            filed.setAccessible(true); // 暴力反射 
+            String name = filed.getName(); 
+            String value = filed.get(null).toString(); 
+            sb.append(name); 
+            sb.append(“=”); 
+            sb.append(value); 
+            sb.append(“\n”); 
+        }
         // 2.得到当前程序的版本号
         PackageInfo info = context.getPackageManager().getPackageInfo(
                 context.getPackageName(), 0);
@@ -240,5 +239,4 @@ ch.init(getApplicationContext());
             });
 }
 
-```
 ```
