@@ -58,3 +58,12 @@ public void XXX(MessageEvent messageEvent) {
     ...
 }
 ```
+# Rxjava
+ > "a library for composing asynchronous and event-based programs using observable sequences for the Java VM"（一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库）
+ 
+完全听不懂啊，
+
+同样是做异步，为什么人们用它，而不用现成的 AsyncTask / Handler / XXX / ... 
+因为简洁啊。
+Android 创造的 AsyncTask 和Handler ，其实都是为了让异步代码更加简洁。
+RxJava 的优势也是简洁，但它的简洁的与众不同之处在于，随着程序逻辑变得越来越复杂，它依然能够保持简洁。
