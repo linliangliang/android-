@@ -42,33 +42,35 @@ onBind将返回给客户端一个IBind接口实例，IBind允许客户端回调�
 
 这两个方法都可以启动Service，但是它们的使用场合有所不同。1. 使用startService()方法启用服务，调用者与服务之间没有关连，即使调用者退出了，服务仍然运行。如果打算采用Context.startService()方法启动服务，在服务未被创建时，系统会先调用服务的onCreate()方法，接着调用onStart()方法。如果调用startService()方法前服务已经被创建，多次调用startService()方法并不会导致多次创建服务，但会导致多次调用onStart()方法。
 
-三、Broadcast Receiver
+### 三、Broadcast Receiver
 
 BroadcastReceiver 用于异步接收广播Intent。
 
-       ·正常广播 Normal broadcasts（用 Context.sendBroadcast()发送）是完全异步的。它们都运行在一个未定义的顺序，通常是在同一时间。这样会更有效，但意味着receiver不能包含所要使用的结果或中止的API。
-　　·有序广播 Ordered broadcasts（用 Context.sendOrderedBroadcast()发送）每次被发送到一个receiver。所谓有序，就是每个receiver执行后可以传播到下一个receiver，也可以完全中止传播--不传播给其他receiver。 而receiver运行的顺序可以通过matched intent-filter 里面的android:priority来控制，当priority优先级相同的时候，Receiver以任意的顺序运行。
+> 正常广播 Normal broadcasts（用 Context.sendBroadcast()发送）是完全异步的。它们都运行在一个未定义的顺序，通常是在同一时间。这样会更有效，但意味着receiver不能包含所要使用的结果或中止的API。
+> 有序广播 Ordered broadcasts（用 Context.sendOrderedBroadcast()发送）每次被发送到一个receiver。所谓有序，就是每个receiver执行后可以传播到下一个receiver，也可以完全中止传播--不传播给其他receiver。 而receiver运行的顺序可以通过matched intent-filter 里面的android:priority来控制，当priority优先级相同的时候，Receiver以任意的顺序运行。
 
 Broadcast Receiver 并没有提供可视化的界面来显示广播信息。可以使用Notification和Notification Manager来实现可视化的信息的界面，显示广播信息的内容，图标及震动信息。
 
 生命周期：一个BroadcastReceiver 对象只有在被调用onReceive(Context, Intent)的才有效的，当从该函数返回后，该对象就无效的了，结束生命周期。
 
-注册Receiver，注册有两种方式：
+#### 注册Receiver，注册有两种方式：
 
 1、静态方式，在AndroidManifest.xml的application里面定义receiver并设置要接收的action。
-
+```html
 <receiver android:name=".SMSReceiver">
 　　<intent-filter>
 　　<action android:name="android.provider.Telephony.SMS_RECEIVED" />
 　　</intent-filter>
 </receiver>
+```
 2、动态方式, 在activity里面调用函数来注册
-
+```java
  receiver = new CallReceiver(); 
  registerReceiver(receiver, new IntentFilter("android.intent.action.PHONE_STATE")); 
+ ```
 动态注册，需要特别注意的是，在退出程序前要记得调用Context.unregisterReceiver()方法。一般在activity的onStart()里面进行注册, onStop()里面进行注销。官方提醒，如果在Activity.onResume()里面注册了，就必须在Activity.onPause()注销。
 
-四、Content Provider
+### 四、Content Provider
 
 一个应用实现ContentProvider来提供内容给别的应用来操作，
 一个应用通过ContentResolver来操作别的应用数据，当然在自己的应用中也可以。
@@ -78,39 +80,32 @@ Broadcast Receiver 并没有提供可视化的界面来显示广播信息。可�
 
 A、存放数据信息
 //1、打开Preferences，名称为setting，如果存在则打开它，否则创建新的Preferences
-
 SharedPreferences settings = getSharedPreferences(“setting”, 0);
 
 //2、让setting处于编辑状态
-
 SharedPreferences.Editor editor = settings.edit();
 
 //3、存放数据
-
 editor.putString(“name”,”ATAAW”);
 
 //4、完成提交
-
 editor.commit();
 
 B、读取数据信息
 
 //1、获取Preferences
-
 SharedPreferences settings = getSharedPreferences(“setting”, 0);
 
 //2、取出数据
-
 String name = settings.getString(“name”,”默认值”);
 
 (2)SQLite 是一款轻型的数据库
 
 打开或者创建数据库:
-
 db=SQLiteDatabase.openOrCreateDatabase("/data/data/com.lingdududu.db/databases/stu.db",null);
 
 创建一张表:
-
+```java
 private void createTable(SQLiteDatabase db){
     //创建表SQL语句
     String stu_table="create table usertable(_id integer primary key autoincrement,sname                                     text,snumber text)";
@@ -153,24 +148,21 @@ private void delete(SQLiteDatabase db) {
     //执行SQL语句  
     db.execSQL(sql);  
 }  
-
-android 6.0/7.0/8.0特性：
-
+```
+### android 6.0/7.0/8.0特性：
 https://blog.csdn.net/u012185875/article/details/78875629
 
-性能优化 – 布局优化，内存优化，电量优化
-布局优化：总结起来就是：减少嵌套，避免过度加载。
+### 性能优化 – 布局优化，内存优化，电量优化
+#### 布局优化：总结起来就是：减少嵌套，避免过度加载。
+1、如果能使用linearlayout的，尽量不用RelativeLayout
+2、使用标签，include标签可以使一个我们已经写好的布局加载到当前的布局中，通过include标签，可以使我们的代码变得简洁，不用再多次重写相同的页面。merge标签和include一般一起使用，用来减少布局的嵌套。一般来说，如果外面的布局是一个linearlayout,而被包含的布局也是一个linearlayou,那么我们就可以使用merge标签，去减少多余的那一层LinearLayout嵌套。ViewStub标签使用 
+3、性能优化工具Hierarchy Viewer查看层级
 
-                 1、如果能使用linearlayout的，尽量不用RelativeLayout
+#### 内存优化：
+（常见内存泄露及优化方案）如果一个无用对象（不需要再使用的对象）仍然被其他对象持有引用，造成该对象无法被系统回收，以致该对象在堆中所占用的内存单元无法被释放而造成内存空间浪费，这中情况就是内存泄露。
 
-                 2、使用标签，include标签可以使一个我们已经写好的布局加载到当前的布局中，通过include标签，可以使我们的代码变得简洁，不用再多次重写相同的页面。merge标签和include一般一起使用，用来减少布局的嵌套。一般来说，如果外面的布局是一个linearlayout,而被包含的布局也是一个linearlayou,那么我们就可以使用merge标签，去减少多余的那一层LinearLayout嵌套。ViewStub标签使用 
-
-                 3、性能优化工具Hierarchy Viewer查看层级
-
-内存优化：（常见内存泄露及优化方案）如果一个无用对象（不需要再使用的对象）仍然被其他对象持有引用，造成该对象无法被系统回收，以致该对象在堆中所占用的内存单元无法被释放而造成内存空间浪费，这中情况就是内存泄露。
-
-                1、单例导致内存泄露：因为单例的静态特性使得它的生命周期同应用的生命周期一样长，如果一个对象已经没有用处了，但是单例还持有它的引用，那么在整个应用程序的生命周期它都不能正常被回收，从而导致内存泄露。例如：
-
+ 1、单例导致内存泄露：因为单例的静态特性使得它的生命周期同应用的生命周期一样长，如果一个对象已经没有用处了，但是单例还持有它的引用，那么在整个应用程序的生命周期它都不能正常被回收，从而导致内存泄露。例如：
+```java
 public class AppSettings {
 
     private static AppSettings sInstance;
@@ -187,21 +179,23 @@ public class AppSettings {
         return sInstance;
     }
 }
+```
 如果我们在调用getInstance(Context context)方法的时候传入的context参数是Activity、Service等上下文，就会导致内存泄露。
 
 以Activity为例，当我们启动一个Activity，并调用getInstance(Context context)方法去获取AppSettings的单例，传入Activity.this作为context，这样AppSettings类的单例sInstance就持有了Activity的引用，当我们退出Activity时，该Activity就没有用了，但是因为sIntance作为静态单例（在应用程序的整个生命周期中存在）会继续持有这个Activity的引用，导致这个Activity对象无法被回收释放，这就造成了内存泄露。
 
 为了避免这样单例导致内存泄露，我们可以将context参数改为全局的上下文：全局的上下文Application Context就是应用程序的上下文，和单例的生命周期一样长，这样就避免了内存泄漏。
-
+```java
 private AppSettings(Context context) {
     this.mContext = context.getApplicationContext();
 }
-                2、静态变量导致内存泄露：
+```
+2、静态变量导致内存泄露：
 
-               3、非静态内部类导致内存泄露，非静态内部类（包括匿名内部类）默认就会持有外部类的引用，当非静态内部类对象的生命周期比外部类对象的生命周期长时，就会导致内存泄露。非静态内部类导致的内存泄露在Android开发中有一种典型的场景就是使用Handler。熟悉Handler消息机制的都知道，mHandler会作为成员变量保存在发送的消息msg中，即msg持有mHandler的引用，而mHandler是Activity的非静态内部类实例，即mHandler持有Activity的引用，那么我们就可以理解为msg间接持有Activity的引用。msg被发送后先放到消息队列MessageQueue中，然后等待Looper的轮询处理（MessageQueue和Looper都是与线程相关联的，MessageQueue是Looper引用的成员变量，而Looper是保存在ThreadLocal中的）。那么当Activity退出后，msg可能仍然存在于消息对列MessageQueue中未处理或者正在处理，那么这样就会导致Activity无法被回收，以致发生Activity的内存泄露。
+3、非静态内部类导致内存泄露，非静态内部类（包括匿名内部类）默认就会持有外部类的引用，当非静态内部类对象的生命周期比外部类对象的生命周期长时，就会导致内存泄露。非静态内部类导致的内存泄露在Android开发中有一种典型的场景就是使用Handler。熟悉Handler消息机制的都知道，mHandler会作为成员变量保存在发送的消息msg中，即msg持有mHandler的引用，而mHandler是Activity的非静态内部类实例，即mHandler持有Activity的引用，那么我们就可以理解为msg间接持有Activity的引用。msg被发送后先放到消息队列MessageQueue中，然后等待Looper的轮询处理（MessageQueue和Looper都是与线程相关联的，MessageQueue是Looper引用的成员变量，而Looper是保存在ThreadLocal中的）。那么当Activity退出后，msg可能仍然存在于消息对列MessageQueue中未处理或者正在处理，那么这样就会导致Activity无法被回收，以致发生Activity的内存泄露。
 
-               4、非静态内部类造成内存泄露还有一种情况就是使用Thread或者AsyncTask。比如在Activity中直接new一个子线程Thread，或者直接新建AsyncTask异步任务：
-
+4、非静态内部类造成内存泄露还有一种情况就是使用Thread或者AsyncTask。比如在Activity中直接new一个子线程Thread，或者直接新建AsyncTask异步任务：
+```java
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -241,12 +235,13 @@ public class MainActivity extends AppCompatActivity {
         }.execute();
     }
 }
-很多初学者都会像上面这样新建线程和异步任务，殊不知这样的写法非常地不友好，这种方式新建的子线程Thread和AsyncTask都是匿名内部类对象，默认就隐式的持有外部Activity的引用，导致Activity内存泄露。要避免内存泄露的话还是需要像上面Handler一样使用静态内部类+弱应用的方式（代码就不列了，参考上面Hanlder的正确写法）。
+```
+很多初学者都会像上面这样新建线程和异步任务，殊不知这样的写法非常地不友好，这种方式新建的子线程Thread和AsyncTask都是**匿名内部类对象**，默认就隐式的持有外部Activity的引用，导致Activity内存泄露。要避免内存泄露的话还是需要像上面Handler一样使用静态内部类+弱应用的方式（代码就不列了，参考上面Hanlder的正确写法）。
 
-               5、未取消注册或回调导致内存泄露，比如我们在Activity中注册广播，如果在Activity销毁后不取消注册，那么这个刚播会一直存在系统中，同上面所说的非静态内部类一样持有Activity引用，导致内存泄露。因此注册广播后在Activity销毁后一定要取消注册。在注册观察则模式的时候，如果不及时取消也会造成内存泄露。比如使用Retrofit+RxJava注册网络请求的观察者回调，同样作为匿名内部类持有外部引用，所以需要记得在不用或者销毁的时候取消注册。
+5、未取消注册或回调导致内存泄露，比如我们在Activity中注册广播，如果在Activity销毁后不取消注册，那么这个刚播会一直存在系统中，同上面所说的非静态内部类一样持有Activity引用，导致内存泄露。因此注册广播后在Activity销毁后一定要取消注册。在注册观察则模式的时候，如果不及时取消也会造成内存泄露。比如使用Retrofit+RxJava注册网络请求的观察者回调，同样作为匿名内部类持有外部引用，所以需要记得在不用或者销毁的时候取消注册。
 
-               6、Timer和TimerTask导致内存泄露，Timer和TimerTask在Android中通常会被用来做一些计时或循环任务，比如实现无限轮播的ViewPager：
-
+6、Timer和TimerTask导致内存泄露，Timer和TimerTask在Android中通常会被用来做一些计时或循环任务，比如实现无限轮播的ViewPager：
+```java
 public class MainActivity extends AppCompatActivity {
 
     private ViewPager mViewPager;
@@ -307,19 +302,20 @@ public class MainActivity extends AppCompatActivity {
         stopLoopViewPager();
     }
 }
+```
 当我们Activity销毁的时，有可能Timer还在继续等待执行TimerTask，它持有Activity的引用不能被回收，因此当我们Activity销毁的时候要立即cancel掉Timer和TimerTask，以避免发生内存泄漏。
 
-              7、集合中的对象未清理造成内存泄露，这个比较好理解，如果一个对象放入到ArrayList、HashMap等集合中，这个集合就会持有该对象的引用。当我们不再需要这个对象时，也并没有将它从集合中移除，这样只要集合还在使用（而此对象已经无用了），这个对象就造成了内存泄露。并且如果集合被静态引用的话，集合里面那些没有用的对象更会造成内存泄露了。所以在使用集合时要及时将不用的对象从集合remove，或者clear集合，以避免内存泄漏。
+7、集合中的对象未清理造成内存泄露，这个比较好理解，如果一个对象放入到ArrayList、HashMap等集合中，这个集合就会持有该对象的引用。当我们不再需要这个对象时，也并没有将它从集合中移除，这样只要集合还在使用（而此对象已经无用了），这个对象就造成了内存泄露。并且如果集合被静态引用的话，集合里面那些没有用的对象更会造成内存泄露了。所以在使用集合时要及时将不用的对象从集合remove，或者clear集合，以避免内存泄漏。
 
-              8、资源未关闭或释放导致内存泄露，在使用IO、File流或者Sqlite、Cursor等资源时要及时关闭。这些资源在进行读写操作时通常都使用了缓冲，如果及时不关闭，这些缓冲对象就会一直被占用而得不到释放，以致发生内存泄露。因此我们在不需要使用它们的时候就及时关闭，以便缓冲能及时得到释放，从而避免内存泄露。
+8、资源未关闭或释放导致内存泄露，在使用IO、File流或者Sqlite、Cursor等资源时要及时关闭。这些资源在进行读写操作时通常都使用了缓冲，如果及时不关闭，这些缓冲对象就会一直被占用而得不到释放，以致发生内存泄露。因此我们在不需要使用它们的时候就及时关闭，以便缓冲能及时得到释放，从而避免内存泄露。
 
-             9、属性动画造成内存泄露，
+9、属性动画造成内存泄露，
 
 动画同样是一个耗时任务，比如在Activity中启动了属性动画（ObjectAnimator），但是在销毁的时候，没有调用cancle方法，虽然我们看不到动画了，但是这个动画依然会不断地播放下去，动画引用所在的控件，所在的控件引用Activity，这就造成Activity无法正常释放。因此同样要在Activity销毁的时候cancel掉属性动画，避免发生内存泄漏。
 
 
 
-             10、WebView造成内存泄露，关于WebView的内存泄露，因为WebView在加载网页后会长期占用内存而不能被释放，因此我们在Activity销毁后要调用它的destory()方法来销毁它以释放内存。
+ 10、WebView造成内存泄露，关于WebView的内存泄露，因为WebView在加载网页后会长期占用内存而不能被释放，因此我们在Activity销毁后要调用它的destory()方法来销毁它以释放内存。
 
 另外在查阅WebView内存泄露相关资料时看到这种情况：
 
@@ -338,8 +334,9 @@ protected void onDestroy() {
     mWebView.removeAllViews();
     mWebView.destroy();
 }
-安全 – 数据加密，代码混淆，WebView/Js调用，https
-数据加密 推荐用AES+RSA进行加密（或者AES+HTTPS）
+
+### 安全 – 数据加密，代码混淆，WebView/Js调用，https
+#### 数据加密 推荐用AES+RSA进行加密（或者AES+HTTPS）
 https://www.jianshu.com/p/4f4a927339a9
 
 按可逆性：加密可分为可逆算法和不可逆算法
@@ -356,23 +353,23 @@ https://www.jianshu.com/p/4f4a927339a9
 
 so文件：ndk开发的so，可以存放一些重要的数据，如：密钥、私钥、API_KEy等，不过这里我建议大家使用分段存放，C层（so文件）+String文件（string.xml）+gradle文件，用的时候再拼接合并，还有如上图所示，AES的加密算法是放在C层进行实现的，这样也是最大程度保护我们数据的安全
 
-代码混淆
-http://www.jianshu.com/p/f3455ecaa56e
+#### 代码混淆
+[http://www.jianshu.com/p/f3455ecaa56e]
 
-HTTPS：
+#### HTTPS：
 现在很多APP都用HTTPS作为网络传输的保证，防止中间人攻击，提高数据传输的安全性（用Retrofit的网络请求框架的，要加上HTTPS也不是什么难事，推荐 http://www.jianshu.com/p/16994e49e2f6 ，这里说的HTTPS是指自签的）
 
-WebView/Js调用
+#### WebView/Js调用
 https://blog.csdn.net/carson_ho/article/details/64904691/
 
-高效 保活长连接：手把手教你实现 自适应的心跳保活机制
+#### 高效 保活长连接：手把手教你实现 自适应的心跳保活机制
 https://blog.csdn.net/carson_ho/article/details/79522975
 
 
-其他 – JNI（java原色接口，可以与c语言交互），AIDL（提供一些机制在不同进程之间进行数据通信：https://www.cnblogs.com/BeyondAnyTime/p/3204119.html），Handler，Intent等
+#### 其他 – JNI（java原色接口，可以与c语言交互），AIDL（提供一些机制在不同进程之间进行数据通信：https://www.cnblogs.com/BeyondAnyTime/p/3204119.html），Handler，Intent等
 
 
-开源框架
+### 图片开源框架
 Gilde：https://blog.csdn.net/qq_31679853/article/details/78616289
 Glide.with(context)
     .load("http://inthecheesefactory.com/uploads/source/glidepicasso/cover.jpg")
@@ -409,15 +406,14 @@ Gilde和Picasso的比较 http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/
 
 
 
-通信 – 网络连接（HttpClient，HttpUrlConnetion），Socket
+#### 通信 – 网络连接（HttpClient，HttpUrlConnetion），Socket
 (https://blog.csdn.net/itachi85/article/details/50982995)
 Android与服务器的通信方式主要有两种，一是Http通信，一是Socket通信。两者的最大差异在于，http连接使用的是“请求—响应方式”，即在请求时建立连接通道，当客户端向服务器发送请求后，服务器端才能向客户端返回数据。而Socket通信则是在双方建立起连接后就可以直接进行数据的传输，在连接时可实现信息的主动推送，而不需要每次由客户端想服务器发送请求。 那么，什么是socket？Socket又称套接字，在程序内部提供了与外界通信的端口，即端口通信。通过建立socket连接，可为通信双方的数据传输传提供通道。socket的主要特点有数据丢失率低，使用简单且易于移植。
 
 
+#### Volley：https://blog.csdn.net/u012602304/article/details/79170137
 
-Volley： https://blog.csdn.net/u012602304/article/details/79170137
-
-Volley是2013年谷歌官方发布的一款Android平台上的网络通信库。Volley非常适合一些数据量不大，但需要频繁通信的网络操作。使用Volley进行网络开发可以使我们的开发效率得到很大的提升，而且性能的稳定性也比较高。但是Volley不适用于文件的上传下载操作。
+Volley是2013年谷歌官方发布的一款Android平台上的网络通信库。Volley**非常适合一些数据量不大**，但需要频繁通信的网络操作。使用Volley进行网络开发可以使我们的开发效率得到很大的提升，而且性能的稳定性也比较高。但是Volley不适用于文件的上传下载操作。
 
 Volley的使用：使用Volley需要建立一个全局的请求队列，这样我们就可以将一个请求加入到这个全局队列中，并可以管理整个APP的所有请求，包括取消一个或所有的请求。RequestQueue内部的设计就是非常合适高并发的，因此我们不必为每一次HTTP请求都创建一个RequestQueue对象，这是非常浪费资源的。
 
@@ -436,7 +432,7 @@ JsonArrayRequest：当确定请求数据的返回类型为JsonArray时使用。
 使用Volley前需要往项目中导入Volley的jar包。
 
 首先我们需要自定义一个Application用于创建一个全局的请求队列。MyApplication.java
-
+```java
 public class MyApplication extends Application{
     private static RequestQueue queues ;
     @Override
@@ -449,9 +445,10 @@ public class MyApplication extends Application{
         return queues;
     }
 }
+```
 manifest文件添加 android:name=".MyApplication"
 1、Get方式请求数据返回StringRequest对象
-
+```java
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -490,6 +487,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
+```
 2、Get方式请求数据返回JsonObjectRequest对象
 
 /**
@@ -572,7 +570,7 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 4、使用Post方式请求数据返回JsonObject对象
-
+```java
 /**
  *  使用Post方式返回JsonObject类型的请求结果数据
  *
@@ -609,6 +607,7 @@ private void volleyPost() {
     //将请求加入全局队列中
     MyApplication.getHttpQueues().add(request);
 }
+```
 5、与Activity生命周期联动
 
 可以在Activity关闭时取消请求队列中的请求。
@@ -621,7 +620,7 @@ protected void onStop() {
     MyApplication.getHttpQueues().cancelAll("loadImage");
 }
 6、使用ImageRequest加载网络图片
-
+```java
 public class MainActivity extends AppCompatActivity {
     private ImageView image;
     @Override
@@ -667,6 +666,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
+```
 7、使用ImageLoader加载及缓存网络图片
 
 public class MainActivity extends AppCompatActivity {
@@ -867,7 +867,7 @@ https://blog.csdn.net/easkshark/article/details/79180344
 
 
 
-Socket
+### Socket
 1 Java中的Socket编程接口介绍
 1.1 Socket类
 
@@ -897,7 +897,7 @@ DatagramSocket是面向数据报socket通信的一个可选通道。数据报通
 
 Socket的实现是多样化的。本指南中只介绍TCP/IP协议族的内容，在这个协议族当中主要的Socket类型为流套接字（streamsocket）和数据报套接字(datagramsocket)。流套接字将TCP作为其端对端协议，提供了一个可信赖的字节流服务。数据报套接字使用UDP协议，提供数据打包发送服务。
 
-1、Socket基本实现原理（https://www.cnblogs.com/zhujiabin/p/5675716.html）(https://www.jianshu.com/p/fb4dfab4eec1)
+#### 1、Socket基本实现原理（https://www.cnblogs.com/zhujiabin/p/5675716.html）(https://www.jianshu.com/p/fb4dfab4eec1)
 
 1.1基于TCP协议的Socket 
 服务器端首先声明一个ServerSocket对象并且指定端口号，然后调用Serversocket的accept（）方法接收客户端的数据。accept（）方法在没有数据进行接收的处于堵塞状态。（Socketsocket=serversocket.accept()）,一旦接收到数据，通过inputstream读取接收的数据。
@@ -926,7 +926,7 @@ Socket的实现是多样化的。本指南中只介绍TCP/IP协议族的内容�
 <!--允许应用程序完全使用网络-->    
 <uses-permission android:name="android.permission.INTERNET"/>
 2、客户端创建socket
-
+```java
 protected void connectServerWithTCPSocket() {  
   
         Socket socket;  
@@ -961,8 +961,9 @@ protected void connectServerWithTCPSocket() {
         }  
   
     }
+ ```
 3、服务器端简单实现：
-
+```java
 public void ServerReceviedByTcp() {  
     // 声明一个ServerSocket对象  
     ServerSocket serverSocket = null;  
@@ -985,8 +986,9 @@ public void ServerReceviedByTcp() {
         e.printStackTrace();  
     }  
 }
+```
 1、socket发送数据报，客户端：
-
+```java
 protected void connectServerWithUDPSocket() {  
     DatagramSocket socket;  
     try {  
@@ -1010,8 +1012,9 @@ protected void connectServerWithUDPSocket() {
         e.printStackTrace();  
     }    
 }
+```
 2、客户端接收服务器返回的数据：
-
+```java
 public void ReceiveServerSocketData() {  
     DatagramSocket socket;  
     try {  
@@ -1033,34 +1036,14 @@ public void ReceiveServerSocketData() {
         e.printStackTrace();  
     }  
 }
+```
 
+### RxJava
+见笔记
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-RxJava等（简历上写你会的，用过的）
 拓展–，kotlin语言，I/O大会
-
-
-
-
-
-1.Activity的启动过程（不要回答生命周期） 
+#### 问答
+1.Activity的启动过程（不要回答生命周期） 
 http://blog.csdn.net/luoshengyang/article/details/6689748
 
 2.Activity的启动模式以及使用场景 
@@ -1112,6 +1095,7 @@ http://blog.csdn.net/lmj623565791/article/details/49300989
 
 12.MVP框架（必问） 
 http://blog.csdn.net/lmj623565791/article/details/46596109 
+https://blog.csdn.net/singwhatiwanna/article/details/80841705
 此处延伸：手写mvp例子，与mvc之间的区别，mvp的优势
 
 13.讲解一下Context 
@@ -1148,17 +1132,17 @@ http://blog.csdn.net/guolin_blog/article/details/42238627 
 21.布局优化 
 http://blog.csdn.net/guolin_blog/article/details/43376527
 
-22.自定义view和动画 
-以下两个讲解都讲得很透彻，这部分面试官多数不会问很深，要么就给你一个效果让你讲原理。 
-（1）http://www.gcssloop.com/customview/CustomViewIndex 
+### .自定义view和动画
+以下两个讲解都讲得很透彻，这部分面试官多数不会问很深，要么就给你一个效果让你讲原理。 
+（1）http://www.gcssloop.com/customview/CustomViewIndex 
 （2）http://blog.csdn.net/yanbober/article/details/50577855
 
 23.设计模式（单例，工厂，观察者。作用，使用场景） 
-一般说自己会的就ok，不要只记得名字就一轮嘴说出来，不然有你好受。 
+一般说自己会的就ok，不要只记得名字就一轮嘴说出来，不然有你好受。
 http://blog.csdn.net/jason0539/article/details/23297037/ 
 此处延伸：Double Check的写法被要求写出来。
 
-24.String，Stringbuffer，Stringbuilder 区别 
+### 4.String，Stringbuffer，Stringbuilder 区别 
 http://blog.csdn.net/kingzone_2008/article/details/9220691
 
 25.开源框架，为什么使用，与别的有什么区别 
@@ -1171,7 +1155,7 @@ http://blog.csdn.net/kingzone_2008/article/details/9220691
 消息传递：EventBus 
 以上框架请自行查找，太多了就不贴出来了。
 
-26.RecyclerView 
+### 6.RecyclerView 
 这个挺搞笑的。有另外一个同事也在找工作，面试官嫌他没用过RecyclerView直接pass掉。 
 http://blog.csdn.net/lmj623565791/article/details/45059587
 
