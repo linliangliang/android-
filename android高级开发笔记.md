@@ -102,3 +102,41 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
 CrashHandler
 ```
+
+# Framework 工作方式及原理，Activity 是如何生成一个 view 的，机制是什么
+Framework是android 系统对 linux kernel，lib库等封装，提供WMS，AMS，bind机制，handler-message机制等方式，供app使用。
+
+简单来说framework就是提供app生存的环境。
+
+- 1）Activity在attch方法的时候，会创建一个phonewindow（window的子类）
+
+- 2）onCreate中的setContentView方法，会创建DecorView
+
+- 3）DecorView 的addview方法，会把layout中的布局加载进来。
+
+# 什么是 AIDL 以及如何使用
+# Handler 机制
+# 事件分发机制
+# 子线程中能不能 new handler？为什么
+# Android 中的动画有哪几类，它们的特点和区别是什么
+视图动画，或者说补间动画。只是视觉上的一个效果，实际view属性没有变化，性能好，但是支持方式少。
+
+属性动画，通过变化属性来达到动画的效果，性能略差，支持点击等事件。android 3.0
+
+帧动画，通过drawable一帧帧画出来。
+
+Gif动画，原理同上，canvas画出来。
+# 如何修改 Activity 进入和退出动画
+# SurfaceView & View 的区别
+view的更新必须在UI thread中进行
+
+surfaceview会单独有一个线程做ui的更新。
+
+surfaceview 支持open GL绘制。
+# 第三方登陆
+# 第三方支付
+# 自定义控件：绘制圆环的实现过程
+# Activity的启动过程（不要回答生命周期）
+
+# 理解Activity，View,Window三者关系
+https://www.jianshu.com/p/5297e307a688
